@@ -24,7 +24,7 @@ DesiShield is a hackathon prototype designed to identify phishing and scam attem
 - Push to a new GitHub repository.
 
 ### 2. Deployed Link
-**Deployed Link: https://desishield-prototype.web.app/** (Placeholder)
+**Deployed Link: https://cheery-dieffenbachia-156cd9.netlify.app/#
 
 ### 3. Setup Environment Variables
 Ensure `API_KEY` is provided in the environment for Gemini API access.
