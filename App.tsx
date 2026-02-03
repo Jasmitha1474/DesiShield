@@ -146,7 +146,6 @@ const App: React.FC = () => {
             <h1 className="text-xl font-bold tracking-tight">DesiShield</h1>
           </div>
           <div className="flex items-center gap-4">
-            <span className="hidden sm:block text-xs font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded">HACKATHON PROTOTYPE</span>
             <div className="w-8 h-8 rounded-full bg-slate-200"></div>
           </div>
         </div>
@@ -368,7 +367,8 @@ const App: React.FC = () => {
       <footer className="fixed bottom-0 w-full bg-white border-t border-slate-200 py-3 px-4">
         <div className="max-w-5xl mx-auto flex justify-between items-center">
           <div className="text-xs text-slate-500 font-medium">
-            &copy; 2024 DesiShield Prototype • Powered by Gemini AI
+            &copy; 2026 DesiShield • Multilingual Phishing Detection Prototype
+
           </div>
           <div className="flex gap-4">
              <a href="#" className="text-xs text-blue-600 font-bold hover:underline">Documentation</a>
