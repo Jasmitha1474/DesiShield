@@ -1,0 +1,7 @@
+{
+  "name": "Copy of DesiShield: Multilingual Phishing Guard",
+  "description": "A high-performance prototype for detecting phishing, scam, and fraudulent messages in Indian languages and code-mixed text (Hinglish, Tamil-English).",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
