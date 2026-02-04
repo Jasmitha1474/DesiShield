@@ -16,6 +16,11 @@ DesiShield is a hackathon prototype designed to identify phishing and scam attem
 - **Icons**: Lucide React
 - **Voice**: Web Speech API
 
+## Demo Video 
+**Watch the full project demonstration:**  
+[Watch Demo]: https://drive.google.com/file/d/1DGO0oiu6TN14SfJ2RdrLF-CLElB58JMU/view?usp=drivesdk
+
+
 ## Deployment Instructions
 
 ### 1. Push to GitHub
@@ -36,4 +41,4 @@ Ensure `API_KEY` is provided in the environment for Gemini API access.
 4. **Export CSV**: Click "Export" in the Sidebar to download the feedback data.
 
 ---
-*Created for the 2024 Cyber-Security Hackathon.*
+*Created for the 2026 HackElite Hackathon.*
