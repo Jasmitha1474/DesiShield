@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { 
   ShieldAlert, 
@@ -10,14 +9,19 @@ import {
   RefreshCw, 
   Download,
   AlertCircle,
-  ExternalLink,
-  Info
+  ArrowLeft,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { DEMO_CASES } from './constants';
 import { AnalysisResult, FeedbackLog, Label } from './types';
 import { analyzeMessage } from './services/gemini';
 
+type Screen = 'home' | 'text-scan' | 'voice-scan';
+
 const App: React.FC = () => {
+  const [screen, setScreen] = useState<Screen>('home');
+  const [darkMode, setDarkMode] = useState(true);
   const [inputText, setInputText] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
@@ -33,7 +37,7 @@ const App: React.FC = () => {
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = false;
-      recognitionRef.current.lang = 'en-IN'; // Supports mixed Indian English
+      recognitionRef.current.lang = 'en-IN';
 
       recognitionRef.current.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
@@ -109,9 +113,9 @@ const App: React.FC = () => {
 
   const renderBadge = (label: Label) => {
     const styles = {
-      'Safe': 'bg-green-100 text-green-700 border-green-200',
-      'Suspicious': 'bg-yellow-100 text-yellow-700 border-yellow-200',
-      'Phishing': 'bg-red-100 text-red-700 border-red-200'
+      'Safe': { bg: darkMode ? 'rgba(59, 167, 118, 0.15)' : 'rgba(59, 167, 118, 0.08)', text: '#3ba776', border: darkMode ? '#3ba776' : '#3ba776' },
+      'Suspicious': { bg: darkMode ? 'rgba(240, 173, 78, 0.15)' : 'rgba(240, 173, 78, 0.08)', text: '#f0ad4e', border: darkMode ? '#f0ad4e' : '#f0ad4e' },
+      'Phishing': { bg: darkMode ? 'rgba(217, 83, 79, 0.15)' : 'rgba(217, 83, 79, 0.08)', text: '#d9534f', border: darkMode ? '#d9534f' : '#d9534f' }
     };
     const Icons = {
       'Safe': ShieldCheck,
@@ -121,261 +125,1148 @@ const App: React.FC = () => {
     const Icon = Icons[label];
 
     return (
-      <div className={`flex items-center gap-2 px-3 py-1 rounded-full border text-sm font-semibold ${styles[label]}`}>
-        <Icon size={16} />
+      <div 
+        className="flex items-center gap-3 px-6 py-3 rounded-full border text-lg font-semibold"
+        style={{ 
+          backgroundColor: styles[label].bg,
+          color: styles[label].text,
+          borderColor: styles[label].border,
+          borderWidth: '1.5px'
+        }}
+      >
+        <Icon size={24} />
         {label}
       </div>
     );
   };
 
   const getScoreColor = (score: number) => {
-    if (score < 30) return 'text-green-600';
-    if (score < 70) return 'text-yellow-600';
-    return 'text-red-600';
+    if (score < 30) return '#3ba776';
+    if (score < 70) return '#f0ad4e';
+    return '#d9534f';
   };
 
+  const accentColor = darkMode ? '#c6a96b' : '#b89b5e';
+  const bgPrimary = darkMode ? '#0a0a0a' : '#f6f5f2';
+  const bgCard = darkMode ? '#111111' : '#ffffff';
+  const bgBorder = darkMode ? '#262626' : '#e8e5e0';
+  const bgSubtle = darkMode ? '#1a1a1a' : '#faf9f7';
+  const textPrimary = darkMode ? '#f5f5f5' : '#111111';
+  const textSecondary = darkMode ? '#a8a8a8' : '#555555';
+
+  // Premium background with gradient and shapes
+  const premiumBackground = darkMode 
+    ? `linear-gradient(135deg, #0a0a0a 0%, #1a1409 25%, #0f0f0f 50%, #1a0f1a 75%, #0a0a0a 100%)`
+    : `linear-gradient(135deg, #f6f5f2 0%, #faf8f4 25%, #f7f6f3 50%, #fdf9f4 75%, #f6f5f2 100%)`;
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
-      {/* Header */}
-      <header className="bg-white border-b sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="bg-blue-600 p-2 rounded-lg text-white">
-              <ShieldAlert size={24} />
-            </div>
-            <h1 className="text-xl font-bold tracking-tight">DesiShield</h1>
-          </div>
+    <div 
+      className="min-h-screen transition-colors duration-300"
+      style={{ 
+        background: premiumBackground,
+        color: textPrimary,
+        fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+      }}
+    >
+      {/* Subtle animated background overlay */}
+      <div 
+        className="fixed inset-0 pointer-events-none opacity-40"
+        style={{
+          background: darkMode 
+            ? 'radial-gradient(circle at 20% 50%, rgba(198, 169, 107, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(198, 169, 107, 0.03) 0%, transparent 50%)'
+            : 'radial-gradient(circle at 20% 50%, rgba(184, 155, 94, 0.03) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(184, 155, 94, 0.02) 0%, transparent 50%)',
+          animation: 'float 20s ease-in-out infinite'
+        }}
+      />
+
+      {/* Navigation Bar */}
+      <nav 
+        className="sticky top-0 z-50 border-b transition-all duration-300"
+        style={{ 
+          borderColor: bgBorder,
+          backgroundColor: darkMode ? 'rgba(10, 10, 10, 0.8)' : 'rgba(246, 245, 242, 0.8)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)'
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-8 h-8 rounded-full bg-slate-200"></div>
+            {screen !== 'home' && (
+              <button
+                onClick={() => {
+                  setScreen('home');
+                  setInputText('');
+                  setResult(null);
+                  setError(null);
+                }}
+                className="p-2 hover:opacity-70 transition-opacity"
+              >
+                <ArrowLeft size={20} />
+              </button>
+            )}
+            <div 
+              style={{ color: accentColor, fontFamily: 'Italiana, serif', fontSize: '24px', fontWeight: 400, letterSpacing: '-0.5px' }}
+            >
+              DesiShield
+            </div>
           </div>
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className="p-2 hover:opacity-70 transition-opacity"
+          >
+            {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
         </div>
-      </header>
+      </nav>
 
-      <main className="max-w-5xl mx-auto px-4 py-8 space-y-8">
-        {/* Intro Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-8 text-white shadow-xl">
-          <h2 className="text-3xl font-bold mb-2">Multilingual Scam Detection</h2>
-          <p className="text-blue-100 max-w-2xl">
-            Protecting users from banking fraud, fake prizes, and phishing in English, Hindi, Tamil, and Hinglish. 
-            Analyze SMS, Chat, or Email content instantly.
-          </p>
-        </div>
+      {/* Home Screen */}
+      {screen === 'home' && (
+        <>
+          {/* Hero Section - Full Height Immersive */}
+          <section 
+            className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-8"
+            style={{ paddingTop: '60px' }}
+          >
+            {/* Hero Background Accent */}
+            <div 
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: darkMode
+                  ? 'radial-gradient(ellipse at center, rgba(198, 169, 107, 0.08) 0%, transparent 70%)'
+                  : 'radial-gradient(ellipse at center, rgba(184, 155, 94, 0.05) 0%, transparent 70%)',
+              }}
+            />
 
-        {/* Input Card */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-              <div className="p-4 border-b bg-slate-50 flex items-center justify-between">
-                <span className="text-sm font-semibold text-slate-700">INPUT MESSAGE</span>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => setInputText('')}
-                    className="p-1 hover:bg-slate-200 rounded text-slate-500 transition-colors"
+            {/* DesiShield Heading */}
+            <h1
+              style={{
+                fontFamily: 'Italiana, serif',
+                fontSize: 'clamp(48px, 10vw, 96px)',
+                fontWeight: 400,
+                color: textPrimary,
+                lineHeight: 1.1,
+                letterSpacing: '-2px',
+                animation: 'slideUp 1s ease-out'
+              }}
+            >
+              DesiShield
+            </h1>
+
+            {/* Hero Content */}
+            <div className="relative z-10 text-center space-y-8 max-w-4xl animate-fade-in">
+              <div style={{ overflow: 'hidden' }} />
+
+              <div style={{ overflow: 'hidden', animation: 'slideUp 1s ease-out 0.2s backwards' }}>
+                <h2 
+                  style={{
+                    fontFamily: 'Italiana, serif',
+                    fontSize: 'clamp(28px, 6vw, 56px)',
+                    fontWeight: 400,
+                    color: accentColor,
+                    lineHeight: 1.2,
+                    letterSpacing: '-1px'
+                  }}
+                >
+                  Stay Ahead of Scams
+                </h2>
+              </div>
+
+              <p 
+                style={{
+                  fontSize: '18px',
+                  color: textSecondary,
+                  maxWidth: '600px',
+                  margin: '0 auto',
+                  lineHeight: 1.6,
+                  animation: 'fadeInUp 1s ease-out 0.4s backwards',
+                  fontWeight: 400
+                }}
+              >
+                Multilingual protection against phishing, fraud, and scam messages across India. Detect threats in English, Hindi, Tamil, and Hinglish.
+              </p>
+
+              {/* CTA Buttons */}
+              <div 
+                className="flex flex-col sm:flex-row gap-6 justify-center pt-8"
+                style={{ animation: 'fadeInUp 1s ease-out 0.6s backwards' }}
+              >
+                <button
+                  onClick={() => setScreen('text-scan')}
+                  className="group px-12 py-4 rounded-full font-semibold transition-all duration-300 hover:scale-105 active:scale-95"
+                  style={{
+                    backgroundColor: accentColor,
+                    color: '#000',
+                    fontSize: '16px',
+                    boxShadow: darkMode 
+                      ? `0 20px 60px rgba(198, 169, 107, 0.15)` 
+                      : `0 20px 60px rgba(184, 155, 94, 0.1)`
+                  }}
+                >
+                  Analyze Message
+                </button>
+                <button
+                  onClick={() => setScreen('voice-scan')}
+                  className="group px-12 py-4 rounded-full font-semibold border-2 transition-all duration-300 hover:scale-105 active:scale-95"
+                  style={{
+                    borderColor: accentColor,
+                    color: accentColor,
+                    fontSize: '16px',
+                    backgroundColor: 'transparent'
+                  }}
+                >
+                  Try Voice Scan
+                </button>
+              </div>
+            </div>
+
+            {/* Scroll Indicator */}
+            <div
+              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 pointer-events-none"
+              style={{
+                animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+              }}
+            >
+              <div style={{ width: '24px', height: '40px', border: `2px solid ${accentColor}`, borderRadius: '12px', position: 'relative' }}>
+                <div style={{ width: '2px', height: '8px', backgroundColor: accentColor, position: 'absolute', top: '8px', left: '50%', transform: 'translateX(-50%)', animation: 'scrollDot 2s infinite' }} />
+              </div>
+            </div>
+          </section>
+
+          {/* Feature Section 1: Message Scan */}
+          <section className="relative py-32 px-8">
+            <div className="max-w-7xl mx-auto">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div className="order-2 lg:order-1 space-y-8">
+                  <div>
+                    <h2 
+                      style={{
+                        fontFamily: 'Italiana, serif',
+                        fontSize: 'clamp(32px, 6vw, 56px)',
+                        fontWeight: 400,
+                        color: textPrimary,
+                        lineHeight: 1.2,
+                        letterSpacing: '-1.5px',
+                        marginBottom: '24px'
+                      }}
+                    >
+                      Message Scan
+                    </h2>
+                    <p style={{ fontSize: '18px', color: textSecondary, lineHeight: 1.8 }}>
+                      Analyze SMS, emails, and chat messages in real-time. Our AI detects phishing patterns, urgency triggers, and fraudulent links across multiple languages.
+                    </p>
+                  </div>
+                  <ul className="space-y-4">
+                    {['Multilingual detection', 'Phishing pattern recognition', 'Real-time analysis', 'Explained results'].map((feature, idx) => (
+                      <li key={idx} className="flex items-center gap-3">
+                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: accentColor }} />
+                        <span style={{ color: textSecondary }}>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={() => setScreen('text-scan')}
+                    className="px-8 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105 active:scale-95 border-2 w-fit"
+                    style={{
+                      borderColor: accentColor,
+                      color: accentColor,
+                      backgroundColor: 'transparent'
+                    }}
                   >
-                    <RefreshCw size={16} />
+                    Start Scanning
                   </button>
                 </div>
+                <div 
+                  className="order-1 lg:order-2 relative rounded-2xl p-8 overflow-hidden min-h-96"
+                  style={{
+                    backgroundColor: bgCard,
+                    border: `1px solid ${bgBorder}`,
+                    boxShadow: darkMode 
+                      ? '0 20px 60px rgba(0, 0, 0, 0.3)' 
+                      : '0 20px 60px rgba(0, 0, 0, 0.05)'
+                  }}
+                >
+                  <div 
+                    className="absolute inset-0 opacity-50"
+                    style={{
+                      background: `radial-gradient(circle at 30% 50%, rgba(198, 169, 107, 0.1) 0%, transparent 50%)`
+                    }}
+                  />
+                  <div className="relative z-10 space-y-4">
+                    <div style={{ height: '12px', backgroundColor: bgBorder, borderRadius: '6px', width: '80%' }} />
+                    <div style={{ height: '12px', backgroundColor: bgBorder, borderRadius: '6px', width: '100%' }} />
+                    <div style={{ height: '12px', backgroundColor: bgBorder, borderRadius: '6px', width: '90%' }} />
+                    <div style={{ height: '80px', backgroundColor: bgBorder, borderRadius: '6px', marginTop: '24px' }} />
+                  </div>
+                </div>
               </div>
-              <div className="p-4">
+            </div>
+          </section>
+
+          {/* Feature Section 2: Voice Scan */}
+          <section className="relative py-32 px-8">
+            <div className="max-w-7xl mx-auto">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div className="space-y-8">
+                  <div>
+                    <h2 
+                      style={{
+                        fontFamily: 'Italiana, serif',
+                        fontSize: 'clamp(32px, 6vw, 56px)',
+                        fontWeight: 400,
+                        color: textPrimary,
+                        lineHeight: 1.2,
+                        letterSpacing: '-1.5px',
+                        marginBottom: '24px'
+                      }}
+                    >
+                      Voice Scan
+                    </h2>
+                    <p style={{ fontSize: '18px', color: textSecondary, lineHeight: 1.8 }}>
+                      Detect voice-based scams and fraudulent calls. Record your transcription and let our intelligence system analyze the threat level and provide insights.
+                    </p>
+                  </div>
+                  <ul className="space-y-4">
+                    {['Live recording', 'Voice transcription', 'Threat detection', 'Pattern analysis'].map((feature, idx) => (
+                      <li key={idx} className="flex items-center gap-3">
+                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: accentColor }} />
+                        <span style={{ color: textSecondary }}>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={() => setScreen('voice-scan')}
+                    className="px-8 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105 active:scale-95 border-2 w-fit"
+                    style={{
+                      borderColor: accentColor,
+                      color: accentColor,
+                      backgroundColor: 'transparent'
+                    }}
+                  >
+                    Start Recording
+                  </button>
+                </div>
+                <div 
+                  className="relative rounded-2xl p-8 overflow-hidden min-h-96 flex items-center justify-center"
+                  style={{
+                    backgroundColor: bgCard,
+                    border: `1px solid ${bgBorder}`,
+                    boxShadow: darkMode 
+                      ? '0 20px 60px rgba(0, 0, 0, 0.3)' 
+                      : '0 20px 60px rgba(0, 0, 0, 0.05)'
+                  }}
+                >
+                  <div 
+                    className="absolute inset-0 opacity-50"
+                    style={{
+                      background: `radial-gradient(circle at 70% 50%, rgba(198, 169, 107, 0.1) 0%, transparent 50%)`
+                    }}
+                  />
+                  <div 
+                    className="relative z-10 w-32 h-32 rounded-full flex items-center justify-center"
+                    style={{
+                      backgroundColor: `${accentColor}20`,
+                      border: `2px solid ${accentColor}`,
+                      animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                    }}
+                  >
+                    <Mic size={64} style={{ color: accentColor }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Footer */}
+          <footer 
+            className="border-t py-12 px-8"
+            style={{ borderColor: bgBorder }}
+          >
+            <div className="max-w-7xl mx-auto text-center">
+              <p style={{ color: textSecondary, fontSize: '14px' }}>
+                © 2026 DesiShield • Multilingual Phishing Detection for India
+              </p>
+            </div>
+          </footer>
+        </>
+      )}
+
+      {/* Text Analysis Screen */}
+      {screen === 'text-scan' && (
+        <main className="relative min-h-screen pt-12 pb-32 px-8">
+          <div className="max-w-4xl mx-auto space-y-12">
+            {/* Input Section */}
+            <div className="space-y-6 animate-fade-in">
+              <div>
+                <h2 
+                  style={{
+                    fontFamily: 'Italiana, serif',
+                    fontSize: '44px',
+                    fontWeight: 400,
+                    color: textPrimary,
+                    lineHeight: 1.2,
+                    letterSpacing: '-1px',
+                    marginBottom: '8px'
+                  }}
+                >
+                  Analyze Message
+                </h2>
+                <p style={{ color: textSecondary, fontSize: '16px' }}>Paste your message to detect phishing and scams</p>
+              </div>
+
+              <div 
+                className="rounded-2xl p-8 border transition-all duration-300"
+                style={{
+                  backgroundColor: bgCard,
+                  borderColor: bgBorder,
+                  boxShadow: darkMode 
+                    ? '0 20px 60px rgba(0, 0, 0, 0.3)' 
+                    : '0 20px 60px rgba(0, 0, 0, 0.05)'
+                }}
+              >
                 <textarea
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
-                  placeholder="Paste SMS, Email or Chat text here... (Hinglish/Regional supported)"
-                  className="w-full h-40 p-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none transition-all"
+                  placeholder="Paste SMS, Email, or Chat text here..."
+                  className="w-full p-6 rounded-xl border resize-none focus:outline-none transition-all"
+                  style={{
+                    minHeight: '200px',
+                    backgroundColor: bgSubtle,
+                    borderColor: bgBorder,
+                    color: textPrimary,
+                    fontSize: '16px',
+                    lineHeight: '1.6',
+                    fontFamily: 'Inter, sans-serif'
+                  }}
                 />
-              </div>
-              <div className="p-4 bg-slate-50 border-t flex flex-wrap gap-3 items-center justify-between">
-                <div className="flex gap-2">
-                  <button
-                    onClick={isRecording ? handleStopRecording : handleStartRecording}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
-                      isRecording 
-                        ? 'bg-red-100 text-red-600 animate-pulse' 
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                    }`}
-                  >
-                    {isRecording ? <MicOff size={18} /> : <Mic size={18} />}
-                    {isRecording ? 'Stop' : 'Voice Input'}
-                  </button>
+
+                <div className="mt-8 space-y-4">
+                  <div className="flex gap-4">
+                    <button
+                      onClick={isRecording ? handleStopRecording : handleStartRecording}
+                      className="flex-1 flex items-center justify-center gap-3 px-6 py-4 rounded-full font-semibold transition-all border-2"
+                      style={{
+                        borderColor: isRecording ? '#d9534f' : bgBorder,
+                        backgroundColor: isRecording ? 'rgba(217, 83, 79, 0.1)' : 'transparent',
+                        color: isRecording ? '#d9534f' : textPrimary
+                      }}
+                    >
+                      {isRecording ? <MicOff size={20} /> : <Mic size={20} />}
+                      {isRecording ? 'Stop Recording' : 'Voice Input'}
+                    </button>
+                    <button
+                      onClick={() => runAnalysis()}
+                      disabled={isAnalyzing || !inputText.trim()}
+                      className="flex-1 flex items-center justify-center gap-3 px-6 py-4 rounded-full font-semibold transition-all disabled:opacity-50 hover:scale-105 active:scale-95"
+                      style={{
+                        backgroundColor: accentColor,
+                        color: '#000'
+                      }}
+                    >
+                      {isAnalyzing ? <RefreshCw size={20} className="animate-spin" /> : <Send size={20} />}
+                      {isAnalyzing ? 'Analyzing...' : 'Analyze'}
+                    </button>
+                  </div>
                 </div>
-                <button
-                  onClick={() => runAnalysis()}
-                  disabled={isAnalyzing || !inputText.trim()}
-                  className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 shadow-lg shadow-blue-200 transition-all active:scale-95"
-                >
-                  {isAnalyzing ? <RefreshCw size={18} className="animate-spin" /> : <Send size={18} />}
-                  Analyze Now
-                </button>
+              </div>
+
+              {/* Demo Cases */}
+              <div>
+                <h3 style={{ color: textPrimary, fontSize: '14px', fontWeight: 600, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                  Try Demo Cases
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {DEMO_CASES.map((demo) => (
+                    <button
+                      key={demo.id}
+                      onClick={() => {
+                        setInputText(demo.text);
+                        runAnalysis(demo.text);
+                      }}
+                      className="text-left p-6 rounded-xl border transition-all duration-300 hover:border-opacity-100 hover:scale-105 active:scale-95"
+                      style={{
+                        backgroundColor: bgCard,
+                        borderColor: bgBorder,
+                        color: textPrimary
+                      }}
+                    >
+                      <div style={{ color: accentColor, fontSize: '12px', fontWeight: 600, marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        {demo.type}
+                      </div>
+                      <div style={{ fontWeight: 600, fontSize: '16px', marginBottom: '4px' }}>{demo.title}</div>
+                      <div style={{ color: textSecondary, fontSize: '13px', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        {demo.text}
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
+            {/* Error */}
             {error && (
-              <div className="bg-red-50 border border-red-200 p-4 rounded-xl flex items-center gap-3 text-red-700">
-                <AlertCircle size={20} />
-                <span className="text-sm font-medium">{error}</span>
+              <div 
+                className="p-6 rounded-xl border flex items-center gap-4 animate-fade-in"
+                style={{
+                  backgroundColor: 'rgba(217, 83, 79, 0.1)',
+                  borderColor: '#d9534f',
+                  color: '#d9534f'
+                }}
+              >
+                <AlertCircle size={24} />
+                <span className="font-semibold">{error}</span>
               </div>
             )}
 
-            {/* Analysis Result Display */}
+            {/* Analysis Result */}
             {result && !isAnalyzing && (
-              <div className="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="p-6 space-y-6">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="text-lg font-bold text-slate-900">Analysis Result</h3>
-                      <p className="text-sm text-slate-500">Language: <span className="font-semibold text-slate-700">{result.language}</span></p>
-                    </div>
-                    {renderBadge(result.label)}
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
-                      <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Risk Score</div>
-                      <div className="flex items-end gap-2">
-                        <span className={`text-4xl font-black ${getScoreColor(result.score)}`}>{result.score}</span>
-                        <span className="text-slate-400 font-medium mb-1">/ 100</span>
-                      </div>
-                      <div className="mt-4 w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full transition-all duration-1000 ${result.score > 70 ? 'bg-red-500' : result.score > 30 ? 'bg-yellow-500' : 'bg-green-500'}`}
-                          style={{ width: `${result.score}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
-                      <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Threat Type</div>
-                      <div className="text-lg font-bold text-slate-700 mb-2">{result.threatType}</div>
-                      <div className="flex flex-wrap gap-2">
-                        {result.triggeredRules.map((rule, idx) => (
-                          <span key={idx} className="bg-slate-200 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
-                            {rule}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                      <Info size={16} className="text-blue-500" />
-                      Explainability Logic
-                    </div>
-                    <p className="text-slate-600 text-sm leading-relaxed bg-blue-50 p-4 rounded-lg border border-blue-100">
-                      {result.reasoning}
+              <div 
+                className="space-y-8 animate-fade-in"
+                style={{
+                  animation: 'fadeInUp 0.6s ease-out'
+                }}
+              >
+                {/* Result Header */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                  <div>
+                    <h2 
+                      style={{
+                        fontFamily: 'Italiana, serif',
+                        fontSize: '44px',
+                        fontWeight: 400,
+                        color: textPrimary,
+                        lineHeight: 1.2,
+                        letterSpacing: '-1px'
+                      }}
+                    >
+                      Analysis Result
+                    </h2>
+                    <p style={{ color: textSecondary, marginTop: '8px' }}>
+                      Language: <span style={{ color: accentColor, fontWeight: 600 }}>{result.language}</span>
                     </p>
                   </div>
+                  {renderBadge(result.label)}
+                </div>
 
-                  <div className="space-y-2">
-                    <div className="text-sm font-bold text-slate-700">Trigger Words Highlighted</div>
-                    <div className="flex flex-wrap gap-2">
-                      {result.highlightedTerms.map((term, idx) => (
-                        <span key={idx} className="bg-orange-50 text-orange-700 border border-orange-200 text-xs font-medium px-2 py-1 rounded">
-                          {term}
-                        </span>
+                {/* Risk Score */}
+                <div 
+                  className="rounded-2xl p-12 border"
+                  style={{
+                    backgroundColor: bgCard,
+                    borderColor: bgBorder,
+                    boxShadow: darkMode 
+                      ? '0 20px 60px rgba(0, 0, 0, 0.3)' 
+                      : '0 20px 60px rgba(0, 0, 0, 0.05)'
+                  }}
+                >
+                  <div style={{ color: accentColor, fontSize: '13px', fontWeight: 600, marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    Risk Assessment
+                  </div>
+                  <div className="flex items-end gap-4 mb-8">
+                    <div style={{ fontSize: 'clamp(48px, 12vw, 96px)', fontWeight: 300, color: getScoreColor(result.score), lineHeight: 1 }}>
+                      {result.score}
+                    </div>
+                    <div style={{ color: textSecondary, fontSize: '20px', marginBottom: '8px', fontWeight: 300 }}>
+                      / 100
+                    </div>
+                  </div>
+                  <div className="w-full h-3 rounded-full overflow-hidden" style={{ backgroundColor: bgBorder }}>
+                    <div 
+                      className="h-full transition-all duration-1000"
+                      style={{
+                        width: `${result.score}%`,
+                        backgroundColor: getScoreColor(result.score)
+                      }}
+                    />
+                  </div>
+                  <div style={{ color: textSecondary, marginTop: '12px', fontSize: '14px' }}>
+                    {result.score < 30 ? 'Safe Message' : result.score < 70 ? 'Suspicious - Use Caution' : 'High Risk - Likely Phishing'}
+                  </div>
+                </div>
+
+                {/* Threat Classification */}
+                <div 
+                  className="rounded-2xl p-8 border"
+                  style={{
+                    backgroundColor: bgCard,
+                    borderColor: bgBorder,
+                    boxShadow: darkMode 
+                      ? '0 20px 60px rgba(0, 0, 0, 0.3)' 
+                      : '0 20px 60px rgba(0, 0, 0, 0.05)'
+                  }}
+                >
+                  <div style={{ color: accentColor, fontSize: '13px', fontWeight: 600, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    Threat Type
+                  </div>
+                  <h3 style={{ fontSize: '28px', fontWeight: 500, color: textPrimary, marginBottom: '16px' }}>
+                    {result.threatType}
+                  </h3>
+                  <div className="flex flex-wrap gap-3">
+                    {result.triggeredRules.map((rule, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          backgroundColor: `${accentColor}20`,
+                          color: accentColor,
+                          padding: '8px 16px',
+                          borderRadius: '20px',
+                          fontSize: '13px',
+                          fontWeight: 600
+                        }}
+                      >
+                        {rule}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Explanation */}
+                <div 
+                  className="rounded-2xl p-8 border"
+                  style={{
+                    backgroundColor: bgCard,
+                    borderColor: bgBorder,
+                    boxShadow: darkMode 
+                      ? '0 20px 60px rgba(0, 0, 0, 0.3)' 
+                      : '0 20px 60px rgba(0, 0, 0, 0.05)'
+                  }}
+                >
+                  <div style={{ color: accentColor, fontSize: '13px', fontWeight: 600, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    Why This Detection
+                  </div>
+                  <p style={{ fontSize: '16px', color: textSecondary, lineHeight: 1.8 }}>
+                    {result.reasoning}
+                  </p>
+                </div>
+
+                {/* Highlighted Terms */}
+                <div 
+                  className="rounded-2xl p-8 border"
+                  style={{
+                    backgroundColor: bgCard,
+                    borderColor: bgBorder,
+                    boxShadow: darkMode 
+                      ? '0 20px 60px rgba(0, 0, 0, 0.3)' 
+                      : '0 20px 60px rgba(0, 0, 0, 0.05)'
+                  }}
+                >
+                  <div style={{ color: accentColor, fontSize: '13px', fontWeight: 600, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    Flagged Terms
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    {result.highlightedTerms.map((term, idx) => (
+                      <div
+                        key={idx}
+                        className="px-4 py-2 rounded-lg border"
+                        style={{
+                          backgroundColor: darkMode ? 'rgba(240, 173, 78, 0.1)' : 'rgba(240, 173, 78, 0.05)',
+                          borderColor: '#f0ad4e',
+                          color: '#f0ad4e',
+                          fontSize: '14px',
+                          fontWeight: 500
+                        }}
+                      >
+                        {term}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Feedback */}
+                <div 
+                  className="rounded-2xl p-8 border"
+                  style={{
+                    backgroundColor: bgCard,
+                    borderColor: bgBorder,
+                    boxShadow: darkMode 
+                      ? '0 20px 60px rgba(0, 0, 0, 0.3)' 
+                      : '0 20px 60px rgba(0, 0, 0, 0.05)'
+                  }}
+                >
+                  <div style={{ color: textSecondary, fontSize: '14px', marginBottom: '16px', fontWeight: 500 }}>
+                    Help improve DesiShield accuracy
+                  </div>
+                  <div className="flex gap-4">
+                    <button
+                      onClick={() => handleFeedback('Safe')}
+                      className="flex-1 px-6 py-3 rounded-full font-semibold border-2 transition-all hover:scale-105 active:scale-95"
+                      style={{
+                        borderColor: '#3ba776',
+                        color: '#3ba776',
+                        backgroundColor: 'rgba(59, 167, 118, 0.05)'
+                      }}
+                    >
+                      Mark as Safe
+                    </button>
+                    <button
+                      onClick={() => handleFeedback('Phishing')}
+                      className="flex-1 px-6 py-3 rounded-full font-semibold border-2 transition-all hover:scale-105 active:scale-95"
+                      style={{
+                        borderColor: '#d9534f',
+                        color: '#d9534f',
+                        backgroundColor: 'rgba(217, 83, 79, 0.05)'
+                      }}
+                    >
+                      Mark as Scam
+                    </button>
+                  </div>
+                </div>
+
+                {/* Feedback Log */}
+                {logs.length > 0 && (
+                  <div 
+                    className="rounded-2xl p-8 border"
+                    style={{
+                      backgroundColor: bgCard,
+                      borderColor: bgBorder,
+                      boxShadow: darkMode 
+                        ? '0 20px 60px rgba(0, 0, 0, 0.3)' 
+                        : '0 20px 60px rgba(0, 0, 0, 0.05)'
+                    }}
+                  >
+                    <div className="flex items-center justify-between mb-6">
+                      <div style={{ color: accentColor, fontSize: '13px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                        Feedback History
+                      </div>
+                      <button
+                        onClick={exportCSV}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:opacity-70"
+                        style={{ backgroundColor: `${accentColor}20`, color: accentColor }}
+                      >
+                        <Download size={16} />
+                        Export CSV
+                      </button>
+                    </div>
+                    <div className="space-y-3 max-h-80 overflow-y-auto">
+                      {logs.map((log, idx) => (
+                        <div
+                          key={idx}
+                          className="p-4 rounded-lg border"
+                          style={{
+                            backgroundColor: bgSubtle,
+                            borderColor: bgBorder
+                          }}
+                        >
+                          <div className="flex justify-between items-start mb-2">
+                            <span style={{ color: textSecondary, fontSize: '12px' }}>{log.timestamp}</span>
+                            <span 
+                              style={{
+                                fontSize: '12px',
+                                fontWeight: 600,
+                                color: log.userLabel === 'Safe' ? '#3ba776' : '#d9534f'
+                              }}
+                            >
+                              {log.userLabel}
+                            </span>
+                          </div>
+                          <p style={{ color: textPrimary, fontSize: '14px', lineHeight: 1.5 }}>
+                            "{log.message}"
+                          </p>
+                        </div>
                       ))}
                     </div>
                   </div>
+                )}
+              </div>
+            )}
+          </div>
+        </main>
+      )}
 
-                  {/* Feedback Loop */}
-                  <div className="pt-4 border-t border-dashed flex items-center justify-between gap-4">
-                    <span className="text-sm font-medium text-slate-500">Is this analysis correct?</span>
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={() => handleFeedback('Safe')}
-                        className="px-4 py-2 border border-green-200 text-green-700 hover:bg-green-50 rounded-lg text-sm font-bold transition-all"
-                      >
-                        Mark as Safe
-                      </button>
-                      <button 
-                        onClick={() => handleFeedback('Phishing')}
-                        className="px-4 py-2 border border-red-200 text-red-700 hover:bg-red-50 rounded-lg text-sm font-bold transition-all"
-                      >
-                        Mark as Scam
-                      </button>
+      {/* Voice Analysis Screen */}
+      {screen === 'voice-scan' && (
+        <main className="relative min-h-screen pt-12 pb-32 px-8">
+          <div className="max-w-4xl mx-auto space-y-12">
+            {/* Voice Recording Section */}
+            <div className="space-y-8 animate-fade-in">
+              <div>
+                <h2 
+                  style={{
+                    fontFamily: 'Italiana, serif',
+                    fontSize: '44px',
+                    fontWeight: 400,
+                    color: textPrimary,
+                    lineHeight: 1.2,
+                    letterSpacing: '-1px',
+                    marginBottom: '8px'
+                  }}
+                >
+                  Voice Scan
+                </h2>
+                <p style={{ color: textSecondary, fontSize: '16px' }}>Record and analyze voice calls for phishing threats</p>
+              </div>
+
+              <div 
+                className="rounded-2xl p-16 border flex flex-col items-center justify-center min-h-96"
+                style={{
+                  backgroundColor: bgCard,
+                  borderColor: bgBorder,
+                  boxShadow: darkMode 
+                    ? '0 20px 60px rgba(0, 0, 0, 0.3)' 
+                    : '0 20px 60px rgba(0, 0, 0, 0.05)',
+                  background: darkMode 
+                    ? `linear-gradient(135deg, #111111 0%, #1a1509 100%)`
+                    : `linear-gradient(135deg, #ffffff 0%, #faf9f7 100%)`
+                }}
+              >
+                <button
+                  onClick={isRecording ? handleStopRecording : handleStartRecording}
+                  className="group relative mb-8 transition-all duration-300 hover:scale-110 active:scale-95"
+                >
+                  <div 
+                    className="w-40 h-40 rounded-full flex items-center justify-center transition-all duration-300"
+                    style={{
+                      backgroundColor: accentColor,
+                      boxShadow: isRecording 
+                        ? `0 0 60px ${accentColor}, 0 0 120px ${accentColor}80`
+                        : `0 20px 60px ${accentColor}40`,
+                      animation: isRecording ? 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite' : 'none'
+                    }}
+                  >
+                    {isRecording ? <MicOff size={80} color="#000" /> : <Mic size={80} color="#000" />}
+                  </div>
+                  {isRecording && (
+                    <>
+                      <div 
+                        className="absolute inset-0 rounded-full border-4"
+                        style={{
+                          borderColor: accentColor,
+                          animation: 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
+                          opacity: 0.75
+                        }}
+                      />
+                    </>
+                  )}
+                </button>
+
+                <h3 style={{ fontSize: '24px', fontWeight: 500, color: textPrimary, marginBottom: '8px' }}>
+                  {isRecording ? 'Listening...' : 'Tap to Start Recording'}
+                </h3>
+                <p style={{ color: textSecondary, fontSize: '14px', textAlign: 'center' }}>
+                  {isRecording 
+                    ? 'Recording in progress. Click the button to stop.' 
+                    : 'Click the microphone to begin recording your voice sample.'}
+                </p>
+              </div>
+            </div>
+
+            {/* Transcription */}
+            {inputText && (
+              <div 
+                className="space-y-8 animate-fade-in"
+                style={{
+                  animation: 'fadeInUp 0.6s ease-out'
+                }}
+              >
+                <div 
+                  className="rounded-2xl p-8 border"
+                  style={{
+                    backgroundColor: bgCard,
+                    borderColor: bgBorder,
+                    boxShadow: darkMode 
+                      ? '0 20px 60px rgba(0, 0, 0, 0.3)' 
+                      : '0 20px 60px rgba(0, 0, 0, 0.05)'
+                  }}
+                >
+                  <div style={{ color: accentColor, fontSize: '13px', fontWeight: 600, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    Transcription
+                  </div>
+                  <p style={{ fontSize: '16px', color: textPrimary, lineHeight: 1.8 }}>
+                    {inputText}
+                  </p>
+                </div>
+
+                <div className="flex gap-4">
+                  <button 
+                    onClick={() => {
+                      setInputText('');
+                      setResult(null);
+                    }}
+                    className="flex-1 px-6 py-4 rounded-full font-semibold border-2 transition-all hover:scale-105 active:scale-95"
+                    style={{
+                      borderColor: bgBorder,
+                      color: textPrimary,
+                      backgroundColor: 'transparent'
+                    }}
+                  >
+                    Re-record
+                  </button>
+                  <button
+                    onClick={() => runAnalysis()}
+                    disabled={isAnalyzing || !inputText.trim()}
+                    className="flex-1 px-6 py-4 rounded-full font-semibold transition-all disabled:opacity-50 hover:scale-105 active:scale-95"
+                    style={{
+                      backgroundColor: accentColor,
+                      color: '#000'
+                    }}
+                  >
+                    {isAnalyzing ? 'Analyzing...' : 'Analyze'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Analysis Result */}
+            {result && !isAnalyzing && (
+              <div 
+                className="space-y-8 animate-fade-in"
+                style={{
+                  animation: 'fadeInUp 0.6s ease-out'
+                }}
+              >
+                {/* Result Header */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                  <div>
+                    <h2 
+                      style={{
+                        fontFamily: 'Italiana, serif',
+                        fontSize: '44px',
+                        fontWeight: 400,
+                        color: textPrimary,
+                        lineHeight: 1.2,
+                        letterSpacing: '-1px'
+                      }}
+                    >
+                      Analysis Result
+                    </h2>
+                  </div>
+                  {renderBadge(result.label)}
+                </div>
+
+                {/* Risk Score */}
+                <div 
+                  className="rounded-2xl p-12 border"
+                  style={{
+                    backgroundColor: bgCard,
+                    borderColor: bgBorder,
+                    boxShadow: darkMode 
+                      ? '0 20px 60px rgba(0, 0, 0, 0.3)' 
+                      : '0 20px 60px rgba(0, 0, 0, 0.05)'
+                  }}
+                >
+                  <div style={{ color: accentColor, fontSize: '13px', fontWeight: 600, marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    Risk Assessment
+                  </div>
+                  <div className="flex items-end gap-4 mb-8">
+                    <div style={{ fontSize: 'clamp(48px, 12vw, 96px)', fontWeight: 300, color: getScoreColor(result.score), lineHeight: 1 }}>
+                      {result.score}
                     </div>
+                    <div style={{ color: textSecondary, fontSize: '20px', marginBottom: '8px', fontWeight: 300 }}>
+                      / 100
+                    </div>
+                  </div>
+                  <div className="w-full h-3 rounded-full overflow-hidden" style={{ backgroundColor: bgBorder }}>
+                    <div 
+                      className="h-full transition-all duration-1000"
+                      style={{
+                        width: `${result.score}%`,
+                        backgroundColor: getScoreColor(result.score)
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Threat Classification */}
+                <div 
+                  className="rounded-2xl p-8 border"
+                  style={{
+                    backgroundColor: bgCard,
+                    borderColor: bgBorder,
+                    boxShadow: darkMode 
+                      ? '0 20px 60px rgba(0, 0, 0, 0.3)' 
+                      : '0 20px 60px rgba(0, 0, 0, 0.05)'
+                  }}
+                >
+                  <div style={{ color: accentColor, fontSize: '13px', fontWeight: 600, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    Threat Type
+                  </div>
+                  <h3 style={{ fontSize: '28px', fontWeight: 500, color: textPrimary, marginBottom: '16px' }}>
+                    {result.threatType}
+                  </h3>
+                  <div className="flex flex-wrap gap-3">
+                    {result.triggeredRules.map((rule, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          backgroundColor: `${accentColor}20`,
+                          color: accentColor,
+                          padding: '8px 16px',
+                          borderRadius: '20px',
+                          fontSize: '13px',
+                          fontWeight: 600
+                        }}
+                      >
+                        {rule}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Explanation */}
+                <div 
+                  className="rounded-2xl p-8 border"
+                  style={{
+                    backgroundColor: bgCard,
+                    borderColor: bgBorder,
+                    boxShadow: darkMode 
+                      ? '0 20px 60px rgba(0, 0, 0, 0.3)' 
+                      : '0 20px 60px rgba(0, 0, 0, 0.05)'
+                  }}
+                >
+                  <div style={{ color: accentColor, fontSize: '13px', fontWeight: 600, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    Why This Detection
+                  </div>
+                  <p style={{ fontSize: '16px', color: textSecondary, lineHeight: 1.8 }}>
+                    {result.reasoning}
+                  </p>
+                </div>
+
+                {/* Flagged Terms */}
+                <div 
+                  className="rounded-2xl p-8 border"
+                  style={{
+                    backgroundColor: bgCard,
+                    borderColor: bgBorder,
+                    boxShadow: darkMode 
+                      ? '0 20px 60px rgba(0, 0, 0, 0.3)' 
+                      : '0 20px 60px rgba(0, 0, 0, 0.05)'
+                  }}
+                >
+                  <div style={{ color: accentColor, fontSize: '13px', fontWeight: 600, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    Flagged Terms
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    {result.highlightedTerms.map((term, idx) => (
+                      <div
+                        key={idx}
+                        className="px-4 py-2 rounded-lg border"
+                        style={{
+                          backgroundColor: darkMode ? 'rgba(240, 173, 78, 0.1)' : 'rgba(240, 173, 78, 0.05)',
+                          borderColor: '#f0ad4e',
+                          color: '#f0ad4e',
+                          fontSize: '14px',
+                          fontWeight: 500
+                        }}
+                      >
+                        {term}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Feedback */}
+                <div 
+                  className="rounded-2xl p-8 border"
+                  style={{
+                    backgroundColor: bgCard,
+                    borderColor: bgBorder,
+                    boxShadow: darkMode 
+                      ? '0 20px 60px rgba(0, 0, 0, 0.3)' 
+                      : '0 20px 60px rgba(0, 0, 0, 0.05)'
+                  }}
+                >
+                  <div style={{ color: textSecondary, fontSize: '14px', marginBottom: '16px', fontWeight: 500 }}>
+                    Help improve DesiShield accuracy
+                  </div>
+                  <div className="flex gap-4">
+                    <button
+                      onClick={() => handleFeedback('Safe')}
+                      className="flex-1 px-6 py-3 rounded-full font-semibold border-2 transition-all hover:scale-105 active:scale-95"
+                      style={{
+                        borderColor: '#3ba776',
+                        color: '#3ba776',
+                        backgroundColor: 'rgba(59, 167, 118, 0.05)'
+                      }}
+                    >
+                      Mark as Safe
+                    </button>
+                    <button
+                      onClick={() => handleFeedback('Phishing')}
+                      className="flex-1 px-6 py-3 rounded-full font-semibold border-2 transition-all hover:scale-105 active:scale-95"
+                      style={{
+                        borderColor: '#d9534f',
+                        color: '#d9534f',
+                        backgroundColor: 'rgba(217, 83, 79, 0.05)'
+                      }}
+                    >
+                      Mark as Scam
+                    </button>
                   </div>
                 </div>
               </div>
             )}
-          </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Demo Buttons */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-              <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-                <ExternalLink size={16} className="text-blue-500" />
-                ONE-CLICK DEMO
-              </h3>
-              <div className="grid grid-cols-1 gap-3">
-                {DEMO_CASES.map((demo) => (
-                  <button
-                    key={demo.id}
-                    onClick={() => {
-                      setInputText(demo.text);
-                      runAnalysis(demo.text);
-                    }}
-                    className="text-left p-3 rounded-lg border border-slate-100 hover:border-blue-200 hover:bg-blue-50 group transition-all"
-                  >
-                    <div className="text-xs font-bold text-blue-600 mb-1">{demo.type}</div>
-                    <div className="text-sm font-semibold text-slate-800 group-hover:text-blue-900">{demo.title}</div>
-                    <div className="text-[10px] text-slate-400 mt-1 line-clamp-1">{demo.text}</div>
-                  </button>
-                ))}
+            {/* Error */}
+            {error && (
+              <div 
+                className="p-6 rounded-xl border flex items-center gap-4 animate-fade-in"
+                style={{
+                  backgroundColor: 'rgba(217, 83, 79, 0.1)',
+                  borderColor: '#d9534f',
+                  color: '#d9534f'
+                }}
+              >
+                <AlertCircle size={24} />
+                <span className="font-semibold">{error}</span>
               </div>
-            </div>
-
-            {/* History / Logs */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-bold text-slate-900">FEEDBACK LOG</h3>
-                <button 
-                  onClick={exportCSV}
-                  disabled={logs.length === 0}
-                  className="text-blue-600 hover:text-blue-800 disabled:text-slate-300 text-xs font-bold flex items-center gap-1"
-                >
-                  <Download size={14} />
-                  Export
-                </button>
-              </div>
-              <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
-                {logs.length === 0 ? (
-                  <div className="text-center py-8 text-slate-400 text-xs italic">
-                    No feedback recorded yet.
-                  </div>
-                ) : (
-                  logs.map((log, idx) => (
-                    <div key={idx} className="p-3 bg-slate-50 rounded-lg border border-slate-100 text-[11px]">
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-slate-400">{log.timestamp}</span>
-                        <span className={`font-bold ${log.userLabel === 'Safe' ? 'text-green-600' : 'text-red-600'}`}>
-                          {log.userLabel}
-                        </span>
-                      </div>
-                      <div className="text-slate-700 line-clamp-2 italic">"{log.message}"</div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
+            )}
           </div>
-        </div>
-      </main>
+        </main>
+      )}
 
-      {/* Footer */}
-      <footer className="fixed bottom-0 w-full bg-white border-t border-slate-200 py-3 px-4">
-        <div className="max-w-5xl mx-auto flex justify-between items-center">
-          <div className="text-xs text-slate-500 font-medium">
-            &copy; 2026 DesiShield • Multilingual Phishing Detection Prototype
+      <style>{`
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
 
-          </div>
-          <div className="flex gap-4">
-             <a href="#" className="text-xs text-blue-600 font-bold hover:underline">Documentation</a>
-             <a href="#" className="text-xs text-blue-600 font-bold hover:underline">GitHub</a>
-          </div>
-        </div>
-      </footer>
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(20px);
+          }
+        }
+
+        @keyframes scrollDot {
+          0% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          100% {
+            opacity: 0;
+            transform: translateY(12px);
+          }
+        }
+
+        @keyframes ping {
+          75%, 100% {
+            transform: scale(2);
+            opacity: 0;
+          }
+        }
+
+        .animate-fade-in {
+          animation: fadeInUp 0.8s ease-out;
+        }
+      `}</style>
     </div>
   );
 };
